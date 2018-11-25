@@ -42,7 +42,7 @@ module.exports = {
 
                     console.log(console.log(customers.QueryResponse.Customer[0]));
                     customers.QueryResponse.Customer.forEach((customer, index) => {
-                        resString += customer.Id + '|' + customer.Id + '|' + encodeURI(customer.FullyQualifiedName) + '|' + customer.Id + '|' + (customer.PrimaryPhone ? customer.PrimaryPhone.FreeFormNumber : '') + '|' + (customer.ShipAddr && customer.ShipAddr.Line1 ? encodeURI(customer.ShipAddr.Line1) : '') + (customer.ShipAddr && customer.ShipAddr.City ? '%0A' + encodeURI(customer.ShipAddr.City) : '') + (customer.ShipAddr && customer.ShipAddr.PostalCode ? '%0A' + customer.ShipAddr.PostalCode: '') + (customer.ShipAddr && customer.ShipAddr.CountrySubDivisionCode ? ' ' + customer.ShipAddr.CountrySubDivisionCode : '') + '|\n';
+                        resString += customer.Id + '|' + encodeURI(customer.FullyQualifiedName) + '|' + customer.Id + '|' + (customer.PrimaryPhone ? customer.PrimaryPhone.FreeFormNumber : '') + '|' + (customer.ShipAddr && customer.ShipAddr.Line1 ? encodeURI(customer.ShipAddr.Line1) : '') + (customer.ShipAddr && customer.ShipAddr.City ? '%0A' + encodeURI(customer.ShipAddr.City) : '') + (customer.ShipAddr && customer.ShipAddr.PostalCode ? '%0A' + customer.ShipAddr.PostalCode: '') + (customer.ShipAddr && customer.ShipAddr.CountrySubDivisionCode ? ' ' + customer.ShipAddr.CountrySubDivisionCode : '') + '|\n';
                     });
                     resString = 'B=' + resString.length + '\n' + resString;
                     resolve(prevString + resString);
