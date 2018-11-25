@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "atob": "^2.0.3",
+    "bluebird": "^3.5.3",
     "body-parser": "^1.18.3",
     "btoa": "^1.1.2",
     "client-oauth2": "^3.2.0",
@@ -26,6 +27,7 @@
     "path": "^0.12.7",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "rsa-pem-from-mod-exp": "^0.8.4"
+    "rsa-pem-from-mod-exp": "^0.8.4",
+    "urlencode": "^1.1.0"
   }
 }

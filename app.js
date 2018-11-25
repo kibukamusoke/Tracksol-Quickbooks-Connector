@@ -37,9 +37,12 @@ app.use('/connected', require('./routes/connected.js'));
 // Call an example API over OAuth2
 app.use('/api_call', require('./routes/api_call.js'));
 
-app.get('/update', qb.getProducts);
-app.get('/update/**', qb.getProducts);
+app.get('/update', qb.updateTerminal);
+app.get('/update/**', qb.updateTerminal);
 
+app.get('/test', qb.updateTerminal);
+
+app.post('/createInvoice', qb.createInvoice);
 // Start server on HTTP (will use ngrok for HTTPS forwarding)
 app.listen(process.env.PORT || 3000, function () {
   console.log('Example app listening on port 3000!')
