@@ -147,7 +147,7 @@ module.exports = {
             qbo.createSalesReceipt({
                 "Line": lines,
                 "CustomerRef": {
-                    "value": req.body.p59.split('~')[1]
+                    "value": req.body.p59.split('~')[0]
                 }
             }, function (e, response) {
                 if (e) {
