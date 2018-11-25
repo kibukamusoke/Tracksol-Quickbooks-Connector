@@ -197,7 +197,7 @@ module.exports = {
                 );
 
 
-                let params = req.body.p1.split('\\n');
+                let params = req.body.p1.split('\n');
                 qbo.createCustomer({
                     "BillAddr": {
                         "Line1": params[1],
