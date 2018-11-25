@@ -38,7 +38,7 @@ app.use('/connected', require('./routes/connected.js'));
 app.use('/api_call', require('./routes/api_call.js'));
 
 app.get('/update', qb.getProducts);
-
+app.get('/update/**', qb.getProducts);
 
 // Start server on HTTP (will use ngrok for HTTPS forwarding)
 app.listen(process.env.PORT || 3000, function () {
