@@ -48,7 +48,7 @@ module.exports = {
                     });
                     resString = 'B=' + resString.length + '\n' + resString;
                     resString2 = 'B=' + resString2.length + '\n' + resString2;
-                    resolve(prevString + resString + resString2);
+                    resolve(prevString + resString);
                 });
             });
         });
@@ -97,58 +97,71 @@ module.exports = {
     },
 
     createSalesReceipt: (req, res) => {
-        config = JSON.parse(config);
-        console.log(req.body);
-        let qbo = new QuickBooks(
-            config.clientId,
-            config.clientSecret,
-            config.oauthToken,
-            config.oauthTokenSecret,
-            config.realmId,
-            config.sandbox, // use the sandbox?
-            true, // enable debugging?
-            null,
-            '2.0',
-            config.refreshToken
-        );
 
-        // create items::
-        let lines = [];
-        req.body.p131.forEach((item, index) => {
 
-            lines.push({
-                "Id": item.item_id,
-                "LineNum": index + 1,
-                "Description": item.reference,
-                "Amount": item.total,
-                "DetailType": "SalesItemLineDetail",
-                "SalesItemLineDetail": {
-                    "ItemRef": {
-                        "value": item.item_id,
-                        "name": 'Item name'
-                    },
-                    "UnitPrice": item.selling_price,
-                    "Qty": item.Qty,
-                    "TaxCodeRef": {
-                        "value": "NON"
+        fs.readFile(__dirname + '/../config.json', (err, config) => {
+            if (err) {
+                console.log(err);
+                res.status(404).send('An error occured. Config failed.');
+            }
+
+            config = JSON.parse(config);
+            console.log(req.body);
+            let qbo = new QuickBooks(
+                config.clientId,
+                config.clientSecret,
+                config.oauthToken,
+                config.oauthTokenSecret,
+                config.realmId,
+                config.sandbox, // use the sandbox?
+                true, // enable debugging?
+                null,
+                '2.0',
+                config.refreshToken
+            );
+
+            // create items::
+            let lines = [];
+            req.body.p131.forEach((item, index) => {
+
+                lines.push({
+                    "Id": item.item_id,
+                    "LineNum": index + 1,
+                    "Description": item.reference,
+                    "Amount": item.total,
+                    "DetailType": "SalesItemLineDetail",
+                    "SalesItemLineDetail": {
+                        "ItemRef": {
+                            "value": item.item_id,
+                            "name": 'Item name'
+                        },
+                        "UnitPrice": item.selling_price,
+                        "Qty": item.Qty,
+                        "TaxCodeRef": {
+                            "value": "NON"
+                        }
                     }
-                }
+                });
+
             });
+            qbo.createSalesReceipt({
+                "Line": lines,
+                "CustomerRef": {
+                    "value": req.body.p59.split('~')[1]
+                }
+            }, function (e, response) {
+                if (e) {
+                    console.log(e);
+                    res.status(404).send(e);
+                } else {
+                    res.status(200).send(response);
+                }
+            })
+
 
         });
-        qbo.createSalesReceipt({
-            "Line": lines,
-            "CustomerRef": {
-                "value": req.body.p59.split('~')[1]
-            }
-        }, function (e, response) {
-            if (e) {
-                console.log(e);
-                res.status(404).send(e);
-            } else {
-                res.status(200).send(response);
-            }
-        })
+
+
     },
 
 
