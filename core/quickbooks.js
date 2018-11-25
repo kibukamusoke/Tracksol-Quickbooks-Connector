@@ -44,7 +44,7 @@ module.exports = {
                     console.log(console.log(customers.QueryResponse.Customer[0]));
                     customers.QueryResponse.Customer.forEach((customer, index) => {
                         resString += customer.Id + '|' + encodeURI(customer.FullyQualifiedName) + '|' + customer.Id + '|' + (customer.PrimaryPhone ? customer.PrimaryPhone.FreeFormNumber : '') + '|' + (customer.ShipAddr && customer.ShipAddr.Line1 ? encodeURI(customer.ShipAddr.Line1) : '') + (customer.ShipAddr && customer.ShipAddr.City ? '%0A' + encodeURI(customer.ShipAddr.City) : '') + (customer.ShipAddr && customer.ShipAddr.PostalCode ? '%0A' + customer.ShipAddr.PostalCode : '') + (customer.ShipAddr && customer.ShipAddr.CountrySubDivisionCode ? ' ' + customer.ShipAddr.CountrySubDivisionCode : '') + '|\n';
-                        resString2 += encodeURI(customer.FullyQualifiedName) + '|' + customer.Id + '|\n';
+                        resString2 += customer.FullyQualifiedName + '|' + customer.Id + '|\n';
                     });
                     resString = 'B=' + resString.length + '\n' + resString;
                     resString2 = 'B=' + resString2.length + '\n' + resString2;
