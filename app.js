@@ -5,12 +5,18 @@ var session = require('express-session');
 let vars = require('./core/variables');
 var app = express();
 let qb = require('./core/quickbooks');
+let bodyParser = require('body-parser');
 
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({secret: 'secret', resave: 'false', saveUninitialized: 'false'}));
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
 
 config.api_uri = vars.url;
 config.clientId = vars.clientId;
@@ -42,7 +48,7 @@ app.get('/update/**', qb.updateTerminal);
 
 app.get('/test', qb.updateTerminal);
 
-app.post('/createInvoice', qb.createInvoice);
+app.post('/createSalesReceipt', qb.createSalesReceipt);
 // Start server on HTTP (will use ngrok for HTTPS forwarding)
 app.listen(process.env.PORT || 3000, function () {
   console.log('Example app listening on port 3000!')

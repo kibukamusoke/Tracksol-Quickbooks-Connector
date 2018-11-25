@@ -42,7 +42,7 @@ module.exports = {
 
                     console.log(console.log(customers.QueryResponse.Customer[0]));
                     customers.QueryResponse.Customer.forEach((customer, index) => {
-                        resString += customer.Id + '|' + encodeURI(customer.FullyQualifiedName) + '|' + customer.Id + '|' + (customer.PrimaryPhone ? customer.PrimaryPhone.FreeFormNumber : '') + '|' + (customer.ShipAddr && customer.ShipAddr.Line1 ? encodeURI(customer.ShipAddr.Line1) : '') + (customer.ShipAddr && customer.ShipAddr.City ? '%0A' + encodeURI(customer.ShipAddr.City) : '') + (customer.ShipAddr && customer.ShipAddr.PostalCode ? '%0A' + customer.ShipAddr.PostalCode: '') + (customer.ShipAddr && customer.ShipAddr.CountrySubDivisionCode ? ' ' + customer.ShipAddr.CountrySubDivisionCode : '') + '|\n';
+                        resString += customer.Id + '|' + encodeURI(customer.FullyQualifiedName) + '|' + customer.Id + '|' + (customer.PrimaryPhone ? customer.PrimaryPhone.FreeFormNumber : '') + '|' + (customer.ShipAddr && customer.ShipAddr.Line1 ? encodeURI(customer.ShipAddr.Line1) : '') + (customer.ShipAddr && customer.ShipAddr.City ? '%0A' + encodeURI(customer.ShipAddr.City) : '') + (customer.ShipAddr && customer.ShipAddr.PostalCode ? '%0A' + customer.ShipAddr.PostalCode : '') + (customer.ShipAddr && customer.ShipAddr.CountrySubDivisionCode ? ' ' + customer.ShipAddr.CountrySubDivisionCode : '') + '|\n';
                     });
                     resString = 'B=' + resString.length + '\n' + resString;
                     resolve(prevString + resString);
@@ -77,13 +77,14 @@ module.exports = {
                 );
 
                 qbo.findItems({
+                    type: 'Inventory',
                     fetchAll: true
                 }, function (e, items) {
                     if (e) throw e;
                     // build file::
                     console.log(console.log(items.QueryResponse.Item[0]));
                     items.QueryResponse.Item.forEach((item, index) => {
-                        itemsStr += (index+1) + '|' + item.Id + '|' + item.Id + '||' + encodeURI(item.Name) + '|' + item.UnitPrice + '|' + item.UnitPrice + '|1|' + encodeURI(item.Name) + '|' + item.UnitPrice + '|11|1|2|\n';
+                        itemsStr += (index + 1) + '|' + item.Id + '|' + item.Id + '||' + encodeURI(item.Name) + '|' + item.UnitPrice + '|' + item.UnitPrice + '|1|' + encodeURI(item.Name) + '|' + item.UnitPrice + '|11|1|2|\n';
                     });
                     itemsStr = 'B=' + itemsStr.length + '\n' + itemsStr;
                     resolve(prevString + itemsStr);
@@ -92,8 +93,58 @@ module.exports = {
         });
     },
 
-    createInvoice: (req, res) => {
+    createSalesReceipt: (req, res) => {
+        config = JSON.parse(config);
+        let qbo = new QuickBooks(
+            config.clientId,
+            config.clientSecret,
+            config.oauthToken,
+            config.oauthTokenSecret,
+            config.realmId,
+            config.sandbox, // use the sandbox?
+            true, // enable debugging?
+            null,
+            '2.0',
+            config.refreshToken
+        );
 
+        // create items::
+        let lines = [];
+        req.body.p131.forEach((item, index) => {
+
+            lines.push({
+                "Id": item.item_id,
+                "LineNum": index + 1,
+                "Description": item.reference,
+                "Amount": item.total,
+                "DetailType": "SalesItemLineDetail",
+                "SalesItemLineDetail": {
+                    "ItemRef": {
+                        "value": item.item_id,
+                        "name": 'Item name'
+                    },
+                    "UnitPrice": item.selling_price,
+                    "Qty": item.Qty,
+                    "TaxCodeRef": {
+                        "value": "NON"
+                    }
+                }
+            });
+
+        });
+        qbo.createSalesReceipt({
+            "Line": lines,
+            "CustomerRef": {
+                "value": req.body.p59.split('~')[1]
+            }
+        }, function (e, response) {
+            if (e) {
+                console.log(e);
+                res.status(404).send(e);
+            } else {
+                res.status(200).send(response);
+            }
+        })
     },
 
 
