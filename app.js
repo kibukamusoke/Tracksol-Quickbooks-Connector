@@ -49,6 +49,8 @@ app.get('/update/**', qb.updateTerminal);
 app.get('/test', qb.updateTerminal);
 
 app.post('/createSalesReceipt', qb.createSalesReceipt);
+app.post('/createCustomer', qb.createCustomer);
+
 // Start server on HTTP (will use ngrok for HTTPS forwarding)
 app.listen(process.env.PORT || 3000, function () {
   console.log('Example app listening on port 3000!')
