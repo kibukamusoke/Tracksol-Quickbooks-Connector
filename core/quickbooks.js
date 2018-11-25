@@ -215,7 +215,7 @@ module.exports = {
                         res.status(404).send(e);
                     } else {
                         console.log(e);
-                        res.status(200).send(response);
+                        res.status(200).send(response.DisplayName + 'Quickbooks Customer created. Customer id: ' + response.Id);
                     }
                 })
 
