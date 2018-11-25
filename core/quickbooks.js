@@ -98,6 +98,7 @@ module.exports = {
 
     createSalesReceipt: (req, res) => {
         config = JSON.parse(config);
+        console.log(req.body);
         let qbo = new QuickBooks(
             config.clientId,
             config.clientSecret,
