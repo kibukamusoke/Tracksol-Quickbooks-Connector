@@ -176,13 +176,132 @@ module.exports = {
 
     createCustomer: (req, res) => {
         fs.readFile(__dirname + '/../config.json', (err, config) => {
+            if (err) {
+                console.log(err);
+                res.status(404).send('An error occured. Config failed.');
+            }
+
+            config = JSON.parse(config);
+            console.log(req.body);
+            let qbo = new QuickBooks(
+                config.clientId,
+                config.clientSecret,
+                config.oauthToken,
+                config.oauthTokenSecret,
+                config.realmId,
+                config.sandbox, // use the sandbox?
+                true, // enable debugging?
+                null,
+                '2.0',
+                config.refreshToken
+            );
+
+
+            let params = req.body.p1.split('\n');
+            qbo.createCustomer({
+                "BillAddr": {
+                    "Line1": params[1],
+                    "City": params[2],
+                    "Country": params[3],
+                    "CountrySubDivisionCode": params[4],
+                    "PostalCode": params[5]
+                },
+                "Notes": params[6],
+                "DisplayName": params[0]
+
+            }, function (e, response) {
+                if (e) {
+                    console.log(e);
+                    res.status(404).send(e);
+                } else {
+                    console.log(e);
+                    res.status(200).send(response.DisplayName + 'Quickbooks Customer created. Customer id: ' + response.Id);
+                }
+            });
+
+        });
+    },
+
+    createItem: (req, res) => {
+        fs.readFile(__dirname + '/../config.json', (err, config) => {
+            if (err) {
+                console.log(err);
+                res.status(404).send('An error occured. Config failed.');
+            }
+
+            config = JSON.parse(config);
+            console.log(req.body);
+            let qbo = new QuickBooks(
+                config.clientId,
+                config.clientSecret,
+                config.oauthToken,
+                config.oauthTokenSecret,
+                config.realmId,
+                config.sandbox, // use the sandbox?
+                true, // enable debugging?
+                null,
+                '2.0',
+                config.refreshToken
+            );
+
+            let created = 0;
+            let failed = 0;
+            req.body.p131.forEach((item, index) => {
+                qbo.createItem({
+                    /*"Name": item.reference,
+                    "UnitPrice": item.selling_price,
+                    "IncomeAccountRef": {
+                        "value": IncomeAccountRef[0],
+                        "name": IncomeAccountRef[1]
+                    },
+                    "ExpenseAccountRef": {
+                        "value": ExpenseAccountRef[0],
+                        "name": ExpenseAccountRef[1]
+                    },
+                    "AssetAccountRef": {
+                        "value": AssetAccountRef[0],
+                        "name": AssetAccountRef[1]
+                    },
+                    "PurchaseCost": PurchaseCost,
+                    "Type": "Inventory",
+                    "TrackQtyOnHand": true,
+                    "QtyOnHand": ItemQuantity,
+                    "InvStartDate": CurrentDate*/
+                }, function (e, response) {
+                    if (e) {
+                        console.log(e);
+                        failed++;
+                    } else {
+                        console.log(e);
+                        created++;
+
+                    }
+                });
+
+                if(req.body.p131.length === index+1) { //finally
+                    res.status(200).send('Items created = ' + created + ' || Items failed = ' + failed);
+                }
+            });
+
+        });
+    },
+
+    updateAccounts: (req, res) => {
+        let prevString = '';
+       // qbo.findAccounts(
+
+        return new Promise((resolve, reject) => {
+
+            let resString = 'T=7\nI=1\nR=1\nL=CUSTOMER.TXT\nM=1\nD=\n';
+            fs.readFile(__dirname + '/../config.json', (err, config) => {
                 if (err) {
                     console.log(err);
-                    res.status(404).send('An error occured. Config failed.');
+                    resString = 'B=' + resString.length + '\n' + resString;
+                    resolve(prevString + resString);
+                    return;
                 }
 
                 config = JSON.parse(config);
-                console.log(req.body);
                 let qbo = new QuickBooks(
                     config.clientId,
                     config.clientSecret,
@@ -190,41 +309,25 @@ module.exports = {
                     config.oauthTokenSecret,
                     config.realmId,
                     config.sandbox, // use the sandbox?
-                    true, // enable debugging?
+                    false, // enable debugging?
                     null,
                     '2.0',
                     config.refreshToken
                 );
 
-
-                let params = req.body.p1.split('\n');
-                qbo.createCustomer({
-                    "BillAddr": {
-                        "Line1": params[1],
-                        "City": params[2],
-                        "Country": params[3],
-                        "CountrySubDivisionCode": params[4],
-                        "PostalCode": params[5]
-                    },
-                    "Notes": params[6],
-                    "DisplayName": params[0]
-
-                }, function (e, response) {
-                    if (e) {
-                        console.log(e);
-                        res.status(404).send(e);
-                    } else {
-                        console.log(e);
-                        res.status(200).send(response.DisplayName + 'Quickbooks Customer created. Customer id: ' + response.Id);
-                    }
-                })
-
-
-            }
-        )
-        ;
+                qbo.findAccounts({
+                    Classification: 'Expense',
+                    fetchAll: true
+                }, function (e, accounts) {
+                    if (e) throw e;
+                    // build file::
+                    console.log(accounts);
+                    res.status(200).send(accounts);
+                    resolve(accounts)
+                });
+            });
+        });
     }
 
 
-}
-;
+};

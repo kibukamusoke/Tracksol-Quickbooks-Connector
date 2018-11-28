@@ -46,10 +46,11 @@ app.use('/api_call', require('./routes/api_call.js'));
 app.get('/update', qb.updateTerminal);
 app.get('/update/**', qb.updateTerminal);
 
-app.get('/test', qb.updateTerminal);
+app.get('/test', qb.updateAccounts);
 
 app.post('/createSalesReceipt', qb.createSalesReceipt);
 app.post('/createCustomer', qb.createCustomer);
+app.post('/createItem', qb.createItem);
 
 // Start server on HTTP (will use ngrok for HTTPS forwarding)
 app.listen(process.env.PORT || 3000, function () {
