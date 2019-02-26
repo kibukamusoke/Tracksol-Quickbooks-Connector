@@ -122,21 +122,21 @@ module.exports = {
 
             // create items::
             let lines = [];
-            req.body.p131.forEach((item, index) => {
+            req.body.itemSelectionData.items.forEach((item, index) => {
 
                 lines.push({
-                    "Id": item.item_id,
+                    "Id": item.id,
                     "LineNum": index + 1,
                     "Description": item.reference,
-                    "Amount": item.total,
+                    "Amount": (item.quantity * item.unitPrice),
                     "DetailType": "SalesItemLineDetail",
                     "SalesItemLineDetail": {
                         "ItemRef": {
-                            "value": item.item_id,
+                            "value": item.id,
                             "name": 'Item name'
                         },
-                        "UnitPrice": item.selling_price,
-                        "Qty": item.Qty,
+                        "UnitPrice": item.unitPrice,
+                        "Qty": item.quantity,
                         "TaxCodeRef": {
                             "value": "NON"
                         }
@@ -147,7 +147,7 @@ module.exports = {
             qbo.createSalesReceipt({
                 "Line": lines,
                 "CustomerRef": {
-                    "value": req.body.p59.split('~')[0]
+                    "value": (req.body.p54.split('=')[1]).split('&')[0]
                 }
             }, function (e, response) {
                 if (e) {
