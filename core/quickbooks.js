@@ -122,7 +122,7 @@ module.exports = {
 
             // create items::
             let lines = [];
-            req.body.itemSelectionData.items.forEach((item, index) => {
+            req.body.itemSelectionData[0].items.forEach((item, index) => {
 
                 lines.push({
                     "Id": item.id,
