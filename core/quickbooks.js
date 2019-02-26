@@ -128,7 +128,7 @@ module.exports = {
                     lines.push({
                         "Id": item.id,
                         "LineNum": index + 1,
-                        "Description": item.reference,
+                        "Description": 'Staff : ' + req.body.cardno + ' / TID : ' + req.body.t + ' / TXNID : ' + req.body.itemSelectionData[0].transaction.txnId,
                         "Amount": (item.quantity * item.unitPrice),
                         "DetailType": "SalesItemLineDetail",
                         "SalesItemLineDetail": {
