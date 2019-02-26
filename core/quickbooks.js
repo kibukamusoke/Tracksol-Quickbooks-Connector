@@ -156,7 +156,7 @@ module.exports = {
                         res.status(404).send(e);
                     } else {
                         console.log(response);
-                        res.status(200).send(response);
+                        res.status(200).send(JSON.stringify(response));
                     }
                 })
             });
