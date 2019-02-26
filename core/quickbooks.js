@@ -98,7 +98,7 @@ module.exports = {
 
     createSalesReceipt: (req, res) => {
 
-        try {
+
 
             fs.readFile(__dirname + '/../config.json', (err, config) => {
                 if (err) {
@@ -155,14 +155,12 @@ module.exports = {
                         console.log(e);
                         res.status(404).send(e);
                     } else {
+                        console.log(response);
                         res.status(200).send(response);
                     }
                 })
             });
 
-        } catch (e) {
-            console.log(e);
-        }
 
 
     },
