@@ -106,7 +106,7 @@ module.exports = {
             }
 
             config = JSON.parse(config);
-            console.log(req.body);
+            console.log(JSON.stringify(req.body));
             let qbo = new QuickBooks(
                 config.clientId,
                 config.clientSecret,
