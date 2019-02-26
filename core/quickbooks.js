@@ -98,68 +98,71 @@ module.exports = {
 
     createSalesReceipt: (req, res) => {
 
+        try {
 
-        fs.readFile(__dirname + '/../config.json', (err, config) => {
-            if (err) {
-                console.log(err);
-                res.status(404).send('An error occured. Config failed.');
-            }
+            fs.readFile(__dirname + '/../config.json', (err, config) => {
+                if (err) {
+                    console.log(err);
+                    res.status(404).send('An error occured. Config failed.');
+                }
 
-            config = JSON.parse(config);
-            console.log(JSON.stringify(req.body));
-            let qbo = new QuickBooks(
-                config.clientId,
-                config.clientSecret,
-                config.oauthToken,
-                config.oauthTokenSecret,
-                config.realmId,
-                config.sandbox, // use the sandbox?
-                true, // enable debugging?
-                null,
-                '2.0',
-                config.refreshToken
-            );
+                config = JSON.parse(config);
+                console.log(JSON.stringify(req.body));
+                let qbo = new QuickBooks(
+                    config.clientId,
+                    config.clientSecret,
+                    config.oauthToken,
+                    config.oauthTokenSecret,
+                    config.realmId,
+                    config.sandbox, // use the sandbox?
+                    true, // enable debugging?
+                    null,
+                    '2.0',
+                    config.refreshToken
+                );
 
-            // create items::
-            let lines = [];
-            req.body.itemSelectionData[0].items.forEach((item, index) => {
+                // create items::
+                let lines = [];
+                req.body.itemSelectionData[0].items.forEach((item, index) => {
 
-                lines.push({
-                    "Id": item.id,
-                    "LineNum": index + 1,
-                    "Description": item.reference,
-                    "Amount": (item.quantity * item.unitPrice),
-                    "DetailType": "SalesItemLineDetail",
-                    "SalesItemLineDetail": {
-                        "ItemRef": {
-                            "value": item.id,
-                            "name": 'Item name'
-                        },
-                        "UnitPrice": item.unitPrice,
-                        "Qty": item.quantity,
-                        "TaxCodeRef": {
-                            "value": "NON"
+                    lines.push({
+                        "Id": item.id,
+                        "LineNum": index + 1,
+                        "Description": item.reference,
+                        "Amount": (item.quantity * item.unitPrice),
+                        "DetailType": "SalesItemLineDetail",
+                        "SalesItemLineDetail": {
+                            "ItemRef": {
+                                "value": item.id,
+                                "name": 'Item name'
+                            },
+                            "UnitPrice": item.unitPrice,
+                            "Qty": item.quantity,
+                            "TaxCodeRef": {
+                                "value": "NON"
+                            }
                         }
-                    }
+                    });
+
                 });
-
+                qbo.createSalesReceipt({
+                    "Line": lines,
+                    "CustomerRef": {
+                        "value": (req.body.p54.split('=')[1]).split('&')[0]
+                    }
+                }, function (e, response) {
+                    if (e) {
+                        console.log(e);
+                        res.status(404).send(e);
+                    } else {
+                        res.status(200).send(response);
+                    }
+                })
             });
-            qbo.createSalesReceipt({
-                "Line": lines,
-                "CustomerRef": {
-                    "value": (req.body.p54.split('=')[1]).split('&')[0]
-                }
-            }, function (e, response) {
-                if (e) {
-                    console.log(e);
-                    res.status(404).send(e);
-                } else {
-                    res.status(200).send(response);
-                }
-            })
 
-
-        });
+        } catch (e) {
+            console.log(e);
+        }
 
 
     },
@@ -278,7 +281,7 @@ module.exports = {
                     }
                 });
 
-                if(req.body.p131.length === index+1) { //finally
+                if (req.body.p131.length === index + 1) { //finally
                     res.status(200).send('Items created = ' + created + ' || Items failed = ' + failed);
                 }
             });
@@ -288,7 +291,7 @@ module.exports = {
 
     updateAccounts: (req, res) => {
         let prevString = '';
-       // qbo.findAccounts(
+        // qbo.findAccounts(
 
         return new Promise((resolve, reject) => {
 
